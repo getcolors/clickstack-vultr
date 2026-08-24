@@ -32,8 +32,11 @@
   <h2>The machine keypair is not in this repository</h2>
   <div class="warn">This deployment runs in <strong>keygen mode</strong>: <code>colors.yml</code> carries no <code>vultr-ssh-keys</code>, so the package generates and owns <code>~/.ssh/clickstack-vultr</code> outside the checkout. Cloning this repository elsewhere does not carry machine access — copy the keypair deliberately, or <code>create</code> refuses rather than regenerating a key that cannot reach the live host.</div>
 
+  <h2>Reaching the host</h2>
+  <p>Convergence writes one <code>~/.ssh/config</code> block following the workspace SSH Config Standard, so <code>ssh clickstack-vultr</code> connects with no address, user or <code>-i</code> flag. The block sits at the top of the file, above any <code>Host *</code> stanza that would otherwise win on <code>User</code> and <code>IdentityFile</code>, and <code>delete</code> removes it before destroying the instance.</p>
+
   <h2>Credentials are generated on the server</h2>
-  <p>The admin password and the OTLP ingestion key are never supplied here. Convergence creates the initial team — until one exists the collector binds no OTLP receivers at all — and the ingestion key is that team's own <code>apiKey</code>, minted by the application and so unknowable in advance. Both land only in <code>/etc/clickstack/admin.env</code> and <code>/etc/clickstack/ingestion.env</code> on the server, mode 0600.</p>
+  <p>The admin password, the OTLP ingestion key and the HyperDX session secret are never supplied here. Convergence creates the initial team — until one exists the collector binds no OTLP receivers at all — and the ingestion key is that team's own <code>apiKey</code>, minted by the application and so unknowable in advance. They land only in <code>/etc/clickstack/admin.env</code>, <code>/etc/clickstack/ingestion.env</code> and <code>/etc/clickstack/session.env</code> on the server, mode 0600, each written once so a re-converge never rotates it. The session secret is not optional hardening: without it HyperDX signs session cookies with a constant published in its own repository.</p>
 
   <h2>Source</h2>
   <p><a href="https://github.com/getcolors/clickstack-vultr">This deployment on GitHub</a> · <a href="https://github.com/getcolors/clickstack">Package Skill source</a> · <a href="https://www.getcolors.ai/featured#clickstack">Featured on getcolors.ai</a></p>

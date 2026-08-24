@@ -44,20 +44,36 @@ Build and dry-run require no credentials and never touch `~/.ssh`. Never export
 separate authorization and a one-run `COLORS_PAR_COMPUTE_PREVENT_DESTROY=false`
 override.
 
+## The ssh alias
+
+Convergence writes a `~/.ssh/config` block per the workspace SSH Config
+Standard, so `ssh clickstack-vultr` reaches the host with no address, user or
+`-i` flag. Delete removes the block before destroying the instance.
+
+The block is inserted at the top of `~/.ssh/config`. If that file ever grows an
+option above its first `Host` line, `create` refuses rather than capturing a
+global setting into this deployment's stanza; move it into a trailing
+`Host *` stanza and retry.
+
 ## Credentials generated on the server
 
+Three values live only on the host, all mode 0600 and none supplied here.
 Convergence creates the initial HyperDX team for `clickstack-admin-email` —
 the collector binds no OTLP receivers until one exists — and publishes that
-team's ingestion key. Neither the password nor the key is supplied here:
+team's ingestion key. `EXPRESS_SESSION_SECRET` is generated too, because
+HyperDX otherwise signs session cookies with a constant published in its own
+repository.
 
 ```sh
-ssh -i ~/.ssh/clickstack-vultr root@SERVER 'cat /etc/clickstack/admin.env'
-ssh -i ~/.ssh/clickstack-vultr root@SERVER \
-  'sed -n s/HYPERDX_API_KEY=//p /etc/clickstack/ingestion.env'
+ssh clickstack-vultr 'cat /etc/clickstack/admin.env'
+ssh clickstack-vultr 'sed -n s/HYPERDX_API_KEY=//p /etc/clickstack/ingestion.env'
 ```
 
 Point any OTLP/HTTP exporter at `https://clickstack.bigconfig.online` with that
 value as its `authorization` header.
+
+All three are written under `creates:`, so a re-converge never rotates them. A
+password changed in the UI makes `admin.env` stale and nothing corrects it.
 
 ## Git
 

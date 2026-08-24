@@ -27,9 +27,10 @@ Credentials are `COLORS_PAR_*` variables in the gitignored `.envrc.private`:
 | R2 state backend | `COLORS_PAR_R2_ACCESS_KEY_ID`, `COLORS_PAR_R2_SECRET_ACCESS_KEY` |
 
 `colors.yml` also names `clickstack-admin-email`, the login for the initial
-HyperDX team that convergence creates. The admin password and the team's
-ingestion key are generated on the server and are not supplied here; read them
-from `/etc/clickstack/admin.env` and `/etc/clickstack/ingestion.env` over SSH.
+HyperDX team that convergence creates. The admin password, the team's ingestion
+key and the HyperDX session secret are all generated on the server and none is
+supplied here; read the first two from `/etc/clickstack/admin.env` and
+`/etc/clickstack/ingestion.env`.
 
 ## SSH access
 
@@ -38,6 +39,13 @@ checkout, and the Vultr account key named `clickstack-vultr` belongs to its
 OpenTofu state. Cloning this repository elsewhere does not carry access — copy
 the keypair deliberately. See `CLAUDE.md` for the failure modes and their
 recovery paths.
+
+Convergence also writes a `~/.ssh/config` block, so `ssh clickstack-vultr`
+connects with no address or flags:
+
+```sh
+ssh clickstack-vultr 'cd /opt/clickstack && docker compose ps'
+```
 
 ## Safety
 
