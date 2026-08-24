@@ -26,7 +26,10 @@ Credentials are `COLORS_PAR_*` variables in the gitignored `.envrc.private`:
 | Cloudflare API token (`bigconfig.online` zone) | `COLORS_PAR_CLOUDFLARE_API_TOKEN` |
 | R2 state backend | `COLORS_PAR_R2_ACCESS_KEY_ID`, `COLORS_PAR_R2_SECRET_ACCESS_KEY` |
 
-The HyperDX ingestion key is generated on the server and is not supplied here.
+`colors.yml` also names `clickstack-admin-email`, the login for the initial
+HyperDX team that convergence creates. The admin password and the team's
+ingestion key are generated on the server and are not supplied here; read them
+from `/etc/clickstack/admin.env` and `/etc/clickstack/ingestion.env` over SSH.
 
 ## SSH access
 

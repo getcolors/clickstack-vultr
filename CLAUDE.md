@@ -44,11 +44,14 @@ Build and dry-run require no credentials and never touch `~/.ssh`. Never export
 separate authorization and a one-run `COLORS_PAR_COMPUTE_PREVENT_DESTROY=false`
 override.
 
-## Sending telemetry
+## Credentials generated on the server
 
-The ingestion key is generated on the server, not supplied here:
+Convergence creates the initial HyperDX team for `clickstack-admin-email` —
+the collector binds no OTLP receivers until one exists — and publishes that
+team's ingestion key. Neither the password nor the key is supplied here:
 
 ```sh
+ssh -i ~/.ssh/clickstack-vultr root@SERVER 'cat /etc/clickstack/admin.env'
 ssh -i ~/.ssh/clickstack-vultr root@SERVER \
   'sed -n s/HYPERDX_API_KEY=//p /etc/clickstack/ingestion.env'
 ```

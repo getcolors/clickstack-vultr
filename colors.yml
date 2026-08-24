@@ -30,6 +30,11 @@ compute-prevent-destroy: true
 # and UI share port 443 and the OTLP ports are never exposed directly.
 clickstack-host: clickstack.bigconfig.online
 
+# Login identity for the initial HyperDX team, which convergence creates: the
+# collector binds no OTLP receivers until a team exists. The password is
+# generated on the server into /etc/clickstack/admin.env; retrieve it by SSH.
+clickstack-admin-email: admin@clickstack.bigconfig.online
+
 # Container images the server runs, one service per key. Pin digests here if
 # the deployment should stop tracking upstream tags.
 clickstack-hyperdx-image: docker.hyperdx.io/hyperdx/hyperdx:2
