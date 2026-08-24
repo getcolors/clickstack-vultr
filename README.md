@@ -1,0 +1,43 @@
+# clickstack-vultr
+
+Desired state for one [ClickStack](https://github.com/getcolors/clickstack)
+observability deployment: ClickHouse, MongoDB, the HyperDX OpenTelemetry
+collector and UI on a single Vultr instance in Amsterdam, published at
+**https://clickstack.bigconfig.online**.
+
+This repository holds configuration, not code. The behaviour lives in the
+`package-clickstack-green` Package Skill installed under `.agents/skills/`.
+
+```sh
+direnv allow          # once, after cloning
+./green build         # render .colors/ — no provider calls, no credentials
+./green create --dry-run
+./green create        # converge for real
+```
+
+## Configuration
+
+`colors.yml` is the only file to edit and holds non-secret values only.
+Credentials are `COLORS_PAR_*` variables in the gitignored `.envrc.private`:
+
+| Credential | Variable |
+|---|---|
+| Vultr API key | `COLORS_PAR_VULTR_API_KEY` |
+| Cloudflare API token (`bigconfig.online` zone) | `COLORS_PAR_CLOUDFLARE_API_TOKEN` |
+| R2 state backend | `COLORS_PAR_R2_ACCESS_KEY_ID`, `COLORS_PAR_R2_SECRET_ACCESS_KEY` |
+
+The HyperDX ingestion key is generated on the server and is not supplied here.
+
+## SSH access
+
+The deployment owns its keypair at `~/.ssh/clickstack-vultr`, outside this
+checkout, and the Vultr account key named `clickstack-vultr` belongs to its
+OpenTofu state. Cloning this repository elsewhere does not carry access — copy
+the keypair deliberately. See `CLAUDE.md` for the failure modes and their
+recovery paths.
+
+## Safety
+
+`compute-prevent-destroy: true` guards deletion; lifting it requires a one-run
+`COLORS_PAR_COMPUTE_PREVENT_DESTROY=false` override and separate authorization.
+Never export `COLORS_PAR_PROFILE`, and never edit or commit `.colors/`.

@@ -1,0 +1,68 @@
+# Desired state for clickstack-vultr. Non-secret values only.
+# Credentials belong in the gitignored .envrc.private as COLORS_PAR_* variables.
+# Never export COLORS_PAR_PROFILE: it selects this deployment's remote state.
+#
+# Required credentials:
+#   Vultr           COLORS_PAR_VULTR_API_KEY
+#   Cloudflare      COLORS_PAR_CLOUDFLARE_API_TOKEN
+#                   (edit rights on the bigconfig.online zone)
+#   state in R2     COLORS_PAR_R2_ACCESS_KEY_ID
+#                   COLORS_PAR_R2_SECRET_ACCESS_KEY
+#
+# The HyperDX ingestion API key is generated on the server at create time and
+# is not an operator-supplied credential.
+
+profile: clickstack-vultr
+workdir: .colors
+
+provider-compute: vultr
+provider-dns: cloudflare
+provider-backend: r2
+
+# Preserve this guard in committed desired state. Destruction requires an
+# explicitly authorized one-run override; never edit this flag to bypass it.
+compute-prevent-destroy: true
+
+# --- ClickStack --------------------------------------------------------------
+
+# Public hostname for the HyperDX UI; Caddy terminates TLS via Let's Encrypt
+# and proxies OTLP/HTTP ingestion same-origin under this host, so telemetry
+# and UI share port 443 and the OTLP ports are never exposed directly.
+clickstack-host: clickstack.bigconfig.online
+
+# Container images the server runs, one service per key. Pin digests here if
+# the deployment should stop tracking upstream tags.
+clickstack-hyperdx-image: docker.hyperdx.io/hyperdx/hyperdx:2
+clickstack-otel-collector-image: docker.hyperdx.io/hyperdx/hyperdx-otel-collector:2
+clickstack-clickhouse-image: clickhouse/clickhouse-server:25.8
+clickstack-mongo-image: mongo:5.0.14
+clickstack-caddy-image: caddy:2-alpine
+
+# --- Vultr ------------------------------------------------------------------
+
+vultr-name: clickstack-vultr
+vultr-region: ams
+# ClickHouse + HyperDX + Mongo + OTel collector colocated; 4 vCPU / 8 GiB is
+# the realistic floor for the full stack.
+vultr-plan: vc2-4c-8gb
+# Vultr operating systems are numeric ids; 2284 is Ubuntu 24.04 LTS x64.
+vultr-os-id: 2284
+
+# No vultr-ssh-keys: keygen mode per workspace standards/ssh-keypair.md. The
+# package generates and owns ~/.ssh/clickstack-vultr and registers the account
+# key resource named after the profile. Setting vultr-ssh-keys here would
+# switch this deployment to opt-out mode.
+
+# SSH is key-only and used for convergence and recovery. HTTP(S) is public so
+# Cloudflare, telemetry senders, and the acceptance checks can reach the host.
+vultr-ssh-sources:
+  - 0.0.0.0/0
+  - "::/0"
+vultr-http-sources:
+  - 0.0.0.0/0
+  - "::/0"
+
+# --- R2 state backend -------------------------------------------------------
+
+r2-bucket: tofu-state-319271fed8bc6d2d9059362be1165f37-eu
+r2-endpoint: https://319271fed8bc6d2d9059362be1165f37.eu.r2.cloudflarestorage.com

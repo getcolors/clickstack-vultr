@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "package-clickstack-green": {
+      "source": "getcolors/clickstack",
+      "sourceType": "github",
+      "skillPath": "skills/package-clickstack-green/SKILL.md",
+      "computedHash": "4129285287bbad2af870e99a49aa7085619dca9d27ef0eb8f69f7580a156c1cd"
+    }
+  }
+}
